@@ -628,3 +628,66 @@
         if(items.length === 0){
           const empty = document.createElement("div");
           empty.className = "pill";
+          empty.innerHTML = "<strong>Empty</strong><span>No facts found for this filter.</span>";
+          root.appendChild(empty);
+        }else{
+          for(const f of items){
+            root.appendChild(mkFactCard(f));
+          }
+        }
+        $("pageLabel").textContent = String(STATE.page);
+        if(!silent) toast("good","Updated", "Loaded " + items.length + " facts.");
+      }catch(e){
+        if(!silent) toast("bad","Refresh failed", String(e.message || e));
+      }
+      await refreshStats();
+    }
+
+    // ---------------- websocket ----------------
+    function wsUrl(){
+      const u = new URL(window.location.href);
+      if (u.protocol === "file:") return "ws://127.0.0.1:8787/ws";
+      const proto = (u.protocol === "https:") ? "wss:" : "ws:";
+      return proto + "//" + u.host + "/ws";
+    }
+
+    async function toggleWs(){
+      if(STATE.ws){
+        try{ STATE.ws.close(); }catch(e){}
+        STATE.ws = null;
+        $("wsState").textContent = "off";
+        toast("warn","Realtime off","WebSocket disconnected.");
+        return;
+      }
+      try{
+        const ws = new WebSocket(wsUrl());
+        STATE.ws = ws;
+        ws.onopen = () => {
+          $("wsState").textContent = "on";
+          toast("good","Realtime on","Listening for updates.");
+          ws.send("hello");
+        };
+        ws.onmessage = async (ev) => {
+          // keepalive responses are "ok"
+          if(typeof ev.data === "string"){
+            if(ev.data === "ok") return;
+            return;
+          }
+          try{
+            const buf = await ev.data.arrayBuffer();
+            const txt = new TextDecoder().decode(new Uint8Array(buf));
+            const msg = JSON.parse(txt);
+            if(msg && msg.event){
+              // refresh quickly for small updates
+              await refreshFacts(true);
+            }
+          }catch(e){}
+        };
+        ws.onclose = () => {
+          STATE.ws = null;
+          $("wsState").textContent = "off";
+        };
+      }catch(e){
+        toast("bad","WS failed", String(e.message || e));
+      }
+    }
