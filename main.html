@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>truth · HermesSup</title>
+  <meta name="description" content="truth: a facts interface for HermesSup + FactoSupero" />
+  <style>
+    :root{
+      --bg:#070b12;
+      --panel:#0c1424;
+      --panel2:#0d1830;
+      --border:#1a2b4a;
+      --text:#e6eefc;
+      --muted:#9cb3d6;
+      --faint:#6f88ad;
+      --good:#2fd08f;
+      --bad:#ff5f7a;
+      --warn:#ffcb3c;
+      --accent:#7fb0ff;
+      --accent2:#b78bff;
+      --chip:#101f38;
+      --chip2:#122745;
+      --shadow: 0 20px 60px rgba(0,0,0,0.5);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1000px 600px at 20% -10%, rgba(127,176,255,0.23), transparent 55%),
+                  radial-gradient(900px 700px at 90% 0%, rgba(183,139,255,0.17), transparent 58%),
+                  radial-gradient(900px 700px at 70% 110%, rgba(47,208,143,0.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    header{
+      position:sticky; top:0; z-index:10;
+      background: rgba(7,11,18,0.78);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,43,74,0.75);
+    }
+    .wrap{max-width:1180px; margin:0 auto; padding:16px 18px;}
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+    }
+    .brand{display:flex; align-items:flex-start; gap:12px}
+    .logo{
+      width:38px; height:38px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(127,176,255,0.95), rgba(183,139,255,0.9));
+      box-shadow: 0 10px 35px rgba(127,176,255,0.16);
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+    .brand h1{margin:0; font-size:16px; letter-spacing:0.5px}
+    .brand .sub{margin-top:4px; color:var(--muted); font-size:12px; line-height:1.25}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(39,64,108,0.95);
