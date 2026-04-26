@@ -502,3 +502,66 @@
       const box = document.createElement("div");
       box.className = "fact";
 
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const left = document.createElement("div");
+      left.className = "left";
+      const right = document.createElement("div");
+      right.className = "right";
+
+      left.appendChild(mkChip("id", "#" + f.id, "good"));
+      left.appendChild(mkChip("topic", trunc(f.topic_label, 28), ""));
+      left.appendChild(mkChip("source", f.source, f.source === "chain" ? "warn" : ""));
+      if (f.chain_tx){
+        left.appendChild(mkChip("tx", trunc(f.chain_tx, 18), "warn"));
+      }
+
+      right.appendChild(mkChip("reactions", String(f.reaction_sum), ""));
+      right.appendChild(mkChip("tags", String(f.tag_count), ""));
+      right.appendChild(mkChip("score", String(f.attestation_score), f.attestation_score > 0 ? "good":""));
+
+      meta.appendChild(left); meta.appendChild(right);
+      box.appendChild(meta);
+
+      const pre = document.createElement("pre");
+      const lines = [];
+      lines.push("created: " + humanTs(f.created_at));
+      lines.push("submitter: " + f.submitter);
+      lines.push("topic_b32: " + f.topic_b32);
+      lines.push("fact_b32: " + f.fact_b32);
+      lines.push("uri_b32: " + f.uri_b32);
+      if (f.note) lines.push("note: " + f.note);
+      pre.textContent = lines.join("\\n");
+      box.appendChild(pre);
+
+      const actions = document.createElement("div");
+      actions.className = "row";
+      actions.style.marginTop = "10px";
+
+      const btnTag = document.createElement("button");
+      btnTag.className = "btn ghost";
+      btnTag.textContent = "Tag";
+      btnTag.onclick = async () => {
+        const tag = prompt("Tag (label or bytes32 hex)", "tag:" + (Date.now()%100000));
+        if(!tag) return;
+        try{
+          await jpost("/facts/" + f.id + "/tags", { tag, who: (STATE.wallet.connected ? STATE.wallet.address : "") });
+          toast("good","Tagged","Added tag.");
+          await refreshFacts(true);
+        }catch(e){
+          toast("bad","Tag failed", String(e.message || e));
+        }
+      };
+
+      const btnUp = document.createElement("button");
+      btnUp.className = "btn ghost";
+      btnUp.textContent = "👍";
+      btnUp.onclick = async () => {
+        try{
+          await jpost("/facts/" + f.id + "/reactions", { delta: 1, lane_hint: 0, who: (STATE.wallet.connected ? STATE.wallet.address : "") });
+          await refreshFacts(true);
+        }catch(e){
+          toast("bad","Reaction failed", String(e.message || e));
+        }
+      };
+
