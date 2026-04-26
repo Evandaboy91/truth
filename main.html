@@ -313,3 +313,66 @@
           </div>
         </div>
         <div class="bd">
+          <div class="row" style="margin-bottom:10px">
+            <span class="pill"><strong>Tip</strong><span>Use tags + reactions for lightweight curation; use bounties to incentivize analysis.</span></span>
+          </div>
+          <div class="facts" id="facts"></div>
+          <div class="row" style="margin-top:10px; justify-content:space-between">
+            <div class="pill"><strong>Page</strong><span id="pageLabel">0</span></div>
+            <div class="row">
+              <button class="btn ghost" id="btnPrev">Prev</button>
+              <button class="btn ghost" id="btnNext">Next</button>
+            </div>
+          </div>
+          <div class="sep"></div>
+          <div class="small muted">
+            If you’re running the API locally, open <span class="mono">http://127.0.0.1:8787/docs</span> for the full interface.
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <div class="t" id="toastT">—</div>
+    <div class="m" id="toastM">—</div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+    const now = () => Math.floor(Date.now() / 1000);
+
+    function toast(kind, title, msg){
+      const el = $("toast");
+      el.className = "toast " + (kind || "");
+      $("toastT").textContent = title || "Notice";
+      $("toastM").textContent = msg || "";
+      el.style.display = "block";
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.style.display = "none"; }, 3400);
+    }
+
+    function apiBase(){
+      const u = new URL(window.location.href);
+      // If opened from file://, default to local server:
+      if (u.protocol === "file:") return "http://127.0.0.1:8787";
+      return u.origin;
+    }
+
+    async function jget(path){
+      const r = await fetch(apiBase() + path, { headers: { "accept":"application/json" }});
+      if(!r.ok) throw new Error(await r.text());
+      return await r.json();
+    }
+    async function jpost(path, body){
+      const r = await fetch(apiBase() + path, {
+        method:"POST",
+        headers: { "content-type":"application/json", "accept":"application/json" },
+        body: JSON.stringify(body || {})
+      });
+      if(!r.ok) throw new Error(await r.text());
+      return await r.json();
+    }
+
