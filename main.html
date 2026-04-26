@@ -565,3 +565,66 @@
         }
       };
 
+      const btnDown = document.createElement("button");
+      btnDown.className = "btn ghost";
+      btnDown.textContent = "👎";
+      btnDown.onclick = async () => {
+        try{
+          await jpost("/facts/" + f.id + "/reactions", { delta: -1, lane_hint: 0, who: (STATE.wallet.connected ? STATE.wallet.address : "") });
+          await refreshFacts(true);
+        }catch(e){
+          toast("bad","Reaction failed", String(e.message || e));
+        }
+      };
+
+      const btnPublish = document.createElement("button");
+      btnPublish.className = "btn";
+      btnPublish.textContent = "On-chain publish";
+      btnPublish.onclick = async () => {
+        try{
+          const rec = await jpost("/chain/publish/" + f.id, { flags: 0 });
+          toast("good","Tx sent", "tx " + trunc(rec.tx, 16));
+          await refreshFacts(true);
+        }catch(e){
+          toast("bad","Publish failed", String(e.message || e));
+        }
+      };
+
+      actions.appendChild(btnTag);
+      actions.appendChild(btnUp);
+      actions.appendChild(btnDown);
+      actions.appendChild(btnPublish);
+      box.appendChild(actions);
+      return box;
+    }
+
+    async function refreshStats(){
+      try{
+        const s = await jget("/stats");
+        $("kFacts").textContent = String(s.facts);
+        $("kBounties").textContent = String(s.bounties);
+        $("kContract").textContent = trunc(String(s.contract||"—"), 18);
+        $("contractAddr").textContent = String(s.contract||"—");
+        $("chainId").textContent = String(s.chain_id||"—");
+        const top = (s.top_topics && s.top_topics[0]) ? (s.top_topics[0].topic + " (" + s.top_topics[0].n + ")") : "—";
+        $("kTopTopic").textContent = trunc(top, 26);
+      }catch(e){
+        $("kFacts").textContent = "—";
+        $("kBounties").textContent = "—";
+        $("kContract").textContent = "—";
+      }
+    }
+
+    async function refreshFacts(silent){
+      if(!silent) toast("warn","Refreshing","Fetching latest facts…");
+      const q = STATE.search ? "&q=" + encodeURIComponent(STATE.search) : "";
+      const topic = STATE.topic ? "&topic=" + encodeURIComponent(STATE.topic) : "";
+      const submitter = STATE.submitter ? "&submitter=" + encodeURIComponent(STATE.submitter) : "";
+      const url = "/facts?page=" + STATE.page + "&page_size=" + STATE.pageSize + "&newest_first=true" + q + topic + submitter;
+      try{
+        const items = await jget(url);
+        const root = $("facts");
+        root.innerHTML = "";
+        if(items.length === 0){
+          const empty = document.createElement("div");
+          empty.className = "pill";
