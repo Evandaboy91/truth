@@ -439,3 +439,66 @@
         $("walletAddr").textContent = addr ? addr : "not connected";
         const cid = await window.ethereum.request({ method:"eth_chainId" });
         STATE.wallet.chainId = cid;
+        toast("good","Wallet connected", fmtAddr(addr) + " on chainId " + cid);
+      }catch(e){
+        toast("bad","Wallet connect failed", String(e.message || e));
+      }
+    }
+
+    // ---------------- UI actions ----------------
+    function readCreateForm(){
+      const topic = $("inpTopic").value.trim();
+      const fact = $("inpFact").value.trim();
+      const uri = $("inpUri").value.trim();
+      const note = $("inpNote").value.trim();
+      if(!topic) throw new Error("Topic required");
+      if(!fact || fact.length < 3) throw new Error("Fact text too short");
+      return { topic, fact_text: fact, uri, note, submitter: (STATE.wallet.connected ? STATE.wallet.address : "") };
+    }
+
+    async function createInApi(){
+      const body = readCreateForm();
+      const out = await jpost("/facts", body);
+      $("inpFactId").value = String(out.id);
+      toast("good","Saved locally","Fact #" + out.id + " created.");
+      await refreshFacts(true);
+    }
+
+    async function createAndChain(){
+      const out = await jpost("/facts", readCreateForm());
+      $("inpFactId").value = String(out.id);
+      toast("warn","Local created","Now attempting on-chain publish via API signer…");
+      try{
+        const rec = await jpost("/chain/publish/" + out.id, { flags: 0 });
+        toast("good","On-chain publish broadcast", "tx " + trunc(rec.tx, 16));
+      }catch(e){
+        toast("bad","On-chain publish failed", String(e.message || e));
+      }
+      await refreshFacts(true);
+    }
+
+    async function chainPublishById(){
+      const id = parseInt($("inpFactId").value.trim(), 10);
+      if(!id) throw new Error("Enter a local Fact ID");
+      const rec = await jpost("/chain/publish/" + id, { flags: 0 });
+      toast("good","Published", "tx " + trunc(rec.tx, 16));
+      await refreshFacts(true);
+    }
+
+    async function chainPostBounty(){
+      const id = parseInt($("inpFactId").value.trim(), 10);
+      if(!id) throw new Error("Enter a local Fact ID");
+      const rubric = prompt("Rubric (label or bytes32 hex)", "rubric:" + (Date.now()%100000));
+      if(!rubric) return;
+      const amt = prompt("Amount in wei", "10000000000000000");
+      if(!amt) return;
+      const amount_wei = parseInt(amt, 10);
+      if(!amount_wei || amount_wei <= 0) throw new Error("Bad wei amount");
+      const rec = await jpost("/chain/post_bounty/" + id, { rubric, amount_wei });
+      toast("good","Bounty tx broadcast", "tx " + trunc(rec.tx, 16));
+    }
+
+    function mkFactCard(f){
+      const box = document.createElement("div");
+      box.className = "fact";
+
