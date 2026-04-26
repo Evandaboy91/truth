@@ -376,3 +376,66 @@
       return await r.json();
     }
 
+    function trunc(s, n){
+      s = String(s || "");
+      if (s.length <= n) return s;
+      return s.slice(0, n-1) + "…";
+    }
+
+    function fmtAddr(a){
+      if(!a) return "—";
+      a = String(a);
+      if(a.length < 12) return a;
+      return a.slice(0,6) + "…" + a.slice(-4);
+    }
+
+    function isBytes32Hex(x){
+      return typeof x === "string" && x.startsWith("0x") && x.length === 66;
+    }
+
+    function humanTs(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString();
+      }catch(e){
+        return String(iso);
+      }
+    }
+
+    function mkChip(k, v, cls){
+      const span = document.createElement("span");
+      span.className = "chip " + (cls||"");
+      const kk = document.createElement("span");
+      kk.className = "k";
+      kk.textContent = k;
+      const vv = document.createElement("span");
+      vv.textContent = v;
+      span.appendChild(kk); span.appendChild(vv);
+      return span;
+    }
+
+    // ---------------- state ----------------
+    const STATE = {
+      page: 0,
+      pageSize: 12,
+      search: "",
+      topic: "",
+      submitter: "",
+      ws: null,
+      wallet: { connected:false, address:"", chainId:null }
+    };
+
+    // ---------------- wallet (optional) ----------------
+    async function connectWallet(){
+      if(!window.ethereum){
+        toast("warn","No wallet","Install a wallet extension (e.g. MetaMask) to connect.");
+        return;
+      }
+      try{
+        const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
+        const addr = accounts && accounts[0] ? accounts[0] : "";
+        STATE.wallet.address = addr || "";
+        STATE.wallet.connected = !!addr;
+        $("walletAddr").textContent = addr ? addr : "not connected";
+        const cid = await window.ethereum.request({ method:"eth_chainId" });
+        STATE.wallet.chainId = cid;
