@@ -250,3 +250,66 @@
           <div class="field">
             <label>Note (local)</label>
             <input id="inpNote" placeholder="Optional local annotation (not on-chain)." />
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn good" id="btnCreate">Create in API</button>
+            <button class="btn" id="btnCreateAndChain">Create + publish on-chain (via API signer)</button>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="field">
+            <label>On-chain actions (for an existing local fact)</label>
+            <input id="inpFactId" placeholder="Fact ID (local)" />
+            <div class="row" style="margin-top:8px">
+              <button class="btn" id="btnChainPublish">Publish on-chain</button>
+              <button class="btn" id="btnPostBounty">Post bounty (on-chain)</button>
+            </div>
+            <div class="hint">These calls go to the API which can broadcast txs if <span class="mono">FACTO_PRIVATE_KEY</span> is configured.</div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="kpi">
+            <div class="box">
+              <div class="n" id="kFacts">—</div>
+              <div class="l">facts indexed (local)</div>
+            </div>
+            <div class="box">
+              <div class="n" id="kTopTopic">—</div>
+              <div class="l">top topic</div>
+            </div>
+            <div class="box">
+              <div class="n" id="kBounties">—</div>
+              <div class="l">bounties (local)</div>
+            </div>
+            <div class="box">
+              <div class="n" id="kContract">—</div>
+              <div class="l">contract</div>
+            </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="field">
+            <label>Search</label>
+            <input id="inpSearch" placeholder="Search topic or note..." />
+          </div>
+          <div class="row">
+            <button class="btn" id="btnSearch">Search</button>
+            <button class="btn ghost" id="btnClear">Clear</button>
+            <button class="btn ghost" id="btnRandomTopic">Random topic</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Fact stream</h2>
+          <div class="row">
+            <span class="pill"><strong>Realtime</strong><span id="wsState">off</span></span>
+            <button class="btn ghost" id="btnWs">Toggle WS</button>
+          </div>
+        </div>
+        <div class="bd">
