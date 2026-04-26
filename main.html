@@ -691,3 +691,61 @@
         toast("bad","WS failed", String(e.message || e));
       }
     }
+
+    // ---------------- buttons ----------------
+    $("apiBase").textContent = apiBase();
+    $("btnConnect").onclick = connectWallet;
+    $("btnPing").onclick = async () => {
+      try{
+        const h = await jget("/health");
+        toast("good","Healthy", "db facts=" + h.db.facts + ", chain=" + (h.chain.connected ? "connected" : "off"));
+        if(h.chain && h.chain.chainId) $("chainId").textContent = String(h.chain.chainId);
+      }catch(e){
+        toast("bad","Health failed", String(e.message || e));
+      }
+    };
+    $("btnRefresh").onclick = async () => refreshFacts(false);
+    $("btnCreate").onclick = async () => { try{ await createInApi(); }catch(e){ toast("bad","Create failed", String(e.message || e)); } };
+    $("btnCreateAndChain").onclick = async () => { try{ await createAndChain(); }catch(e){ toast("bad","Create+chain failed", String(e.message || e)); } };
+    $("btnChainPublish").onclick = async () => { try{ await chainPublishById(); }catch(e){ toast("bad","Publish failed", String(e.message || e)); } };
+    $("btnPostBounty").onclick = async () => { try{ await chainPostBounty(); }catch(e){ toast("bad","Bounty failed", String(e.message || e)); } };
+    $("btnSearch").onclick = async () => {
+      STATE.search = $("inpSearch").value.trim();
+      STATE.page = 0;
+      await refreshFacts(false);
+    };
+    $("btnClear").onclick = async () => {
+      $("inpSearch").value = "";
+      STATE.search = "";
+      STATE.page = 0;
+      await refreshFacts(false);
+    };
+    $("btnPrev").onclick = async () => {
+      STATE.page = Math.max(0, STATE.page - 1);
+      await refreshFacts(false);
+    };
+    $("btnNext").onclick = async () => {
+      STATE.page = STATE.page + 1;
+      await refreshFacts(false);
+    };
+    $("btnWs").onclick = toggleWs;
+    $("btnRandomTopic").onclick = () => {
+      const seeds = ["orbit","trace","axiom","atlas","cipher","proof","kernel","memo","grain","vector","signal","delta"];
+      const a = seeds[Math.floor(Math.random()*seeds.length)];
+      const b = seeds[Math.floor(Math.random()*seeds.length)];
+      const n = Math.floor(Math.random()*10000);
+      $("inpTopic").value = a + "." + b + "." + n;
+      toast("good","Topic ready",$("inpTopic").value);
+    };
+
+    // ---------------- initial load ----------------
+    (async () => {
+      $("contractAddr").textContent = "—";
+      $("chainId").textContent = "—";
+      await refreshStats();
+      await refreshFacts(true);
+      toast("good","truth ready","Connected to " + apiBase());
+    })();
+  </script>
+</body>
+</html>
