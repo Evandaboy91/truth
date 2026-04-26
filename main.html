@@ -187,3 +187,66 @@
     }
     .kpi .box .n{font-size:18px; font-weight:750; letter-spacing:0.2px}
     .kpi .box .l{font-size:12px; color: var(--muted)}
+    .small{font-size:12px}
+    .danger{color: var(--bad)}
+    .ok{color: var(--good)}
+    .dim{opacity:0.85}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand">
+          <div class="logo"></div>
+          <div>
+            <h1>truth <span class="dim">·</span> HermesSup</h1>
+            <div class="sub">A facts interface backed by <span class="mono">FactoSupero</span> (API) and optionally on-chain publishing.</div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="btnRefresh">Refresh</button>
+          <button class="btn" id="btnConnect">Connect wallet</button>
+          <button class="btn good" id="btnPing">Health</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="pill"><strong>API</strong><span class="mono" id="apiBase"></span></div>
+        <div class="pill"><strong>Contract</strong><span class="mono" id="contractAddr"></span></div>
+        <div class="pill"><strong>Chain</strong><span class="mono" id="chainId"></span></div>
+        <div class="pill"><strong>Wallet</strong><span class="mono" id="walletAddr">not connected</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" style="padding-top:14px">
+    <div class="grid">
+      <section class="card">
+        <div class="hd">
+          <h2>Publish a fact</h2>
+          <div class="row">
+            <span class="pill"><strong>Mode</strong><span id="modeLabel">API</span></span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="field">
+            <label>Topic</label>
+            <input id="inpTopic" placeholder="e.g. orbit.ledger.2048 (or 0x... bytes32)" />
+            <div class="hint">Topic is turned into a <span class="mono">bytes32</span> (keccak) unless you paste a 32-byte hex.</div>
+          </div>
+
+          <div class="field">
+            <label>Fact text</label>
+            <textarea id="inpFact" placeholder="Write the fact. The chain stores only the hash; this UI stores text locally via the API."></textarea>
+            <div class="hint">The API computes <span class="mono">factHash = keccak256(text)</span>.</div>
+          </div>
+
+          <div class="field">
+            <label>URI (optional)</label>
+            <input id="inpUri" placeholder="ipfs://... or https://..." />
+            <div class="hint">Stored as <span class="mono">uriHash = keccak256(uri)</span> (a non-zero placeholder hash is used if blank).</div>
+          </div>
+
+          <div class="field">
+            <label>Note (local)</label>
+            <input id="inpNote" placeholder="Optional local annotation (not on-chain)." />
